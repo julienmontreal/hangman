@@ -1,4 +1,4 @@
-package ca.qc.jmercier.hangman;
+package ca.qc.jmercier.hangman.util;
 
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -7,7 +7,7 @@ public class StringUtils {
 
 	private static final String UNDERSCORE = "_";
 
-	public static String getUnderscoreString(String word) {
+		public static String getUnderscoreString(String word) {
 		StringBuffer stringBuffer = new StringBuffer(word.length());
 		IntStream.range(0, word.length())
 				.forEach(i -> stringBuffer.append(UNDERSCORE));

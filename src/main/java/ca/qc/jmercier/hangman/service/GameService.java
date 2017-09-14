@@ -1,13 +1,11 @@
 package ca.qc.jmercier.hangman.service;
 
-import ca.qc.jmercier.hangman.StringUtils;
-import ca.qc.jmercier.hangman.dto.Status;
+import ca.qc.jmercier.hangman.util.StringUtils;
+import ca.qc.jmercier.hangman.entities.Status;
 import ca.qc.jmercier.hangman.entities.GameEntity;
 import ca.qc.jmercier.hangman.entities.GameRepository;
 import ca.qc.jmercier.hangman.exception.AlreadyAnsweredException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -27,14 +25,28 @@ public class GameService {
 			} else if (game.getSecretWord().equals(answer)) {
 				game.setStatus(Status.WON);
 				game.setCurrentWord(answer);
+			} else {
+				game.decrementRemainingAttempt();
 			}
-			game.decrementRemainingAttempt();
 		} finally {
 			gameRepository.save(game);
 		}
 	}
 
+	private boolean isLetter(String answer) {
+		return answer.length() == 1;
+	}
+
 	private void processAnswerAsLetter(GameEntity game, char letter) {
+		validateAnswer(game, letter);
+		if (game.getSecretWord().indexOf(letter) != -1) {
+			game.setCurrentWord(StringUtils.replaceLetter(game.getSecretWord(), game.getCurrentWord(), letter));
+		} else {
+			game.decrementRemainingAttempt();
+		}
+	}
+
+	private void validateAnswer(GameEntity game, char letter) {
 		int occurrences = Collections.frequency(game.getAnswers(), letter);
 		if (occurrences == 1) {
 			throw new AlreadyAnsweredException("Already answered " + letter);
@@ -43,11 +55,7 @@ public class GameService {
 			game.decrementRemainingAttempt();
 			throw new AlreadyAnsweredException("Already answered " + letter + ". Your number of attempt has been decreased by 1.");
 		}
-		game.setCurrentWord(StringUtils.replaceLetter(game.getSecretWord(), game.getCurrentWord(), letter));
 	}
 
-	private boolean isLetter(String answer) {
-		return answer.length() == 1;
-	}
 
 }

@@ -1,6 +1,5 @@
-package ca.qc.jmercier.hangman.dto;
+package ca.qc.jmercier.hangman.entities;
 
 public enum Status {
-
     STARTED, WON, LOST;
 }
