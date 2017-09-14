@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -30,8 +31,16 @@ public class GameEntity {
     private String currentWord;
 
     @JsonIgnore
+    @ElementCollection
     private List<String> answers;
 
-    private Integer remainingAttempt = 10;
+    private Integer remainingAttempt;
+
+    public void decrementRemainingAttempt(){
+        remainingAttempt = remainingAttempt - 1;
+        if (remainingAttempt == 0 && !Status.WON.equals(status)){
+            status = Status.LOST;
+        }
+    }
 
 }
