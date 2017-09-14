@@ -20,12 +20,12 @@ public class GameService {
 		game.getAnswers().add(answer);
 
 		try {
-			if (isLetter(answer)) {
-				processAnswerAsLetter(game, answer.charAt(0));
-			} else if (game.getSecretWord().equals(answer)) {
+			if (isSecretFound(game.getSecretWord(), answer)) {
 				game.setStatus(Status.WON);
 				game.setCurrentWord(answer);
-			} else {
+			} else if (isLetter(answer)) {
+				processLetter(game, answer.charAt(0));
+			} else { // non winning word
 				game.decrementRemainingAttempt();
 			}
 		} finally {
@@ -37,16 +37,20 @@ public class GameService {
 		return answer.length() == 1;
 	}
 
-	private void processAnswerAsLetter(GameEntity game, char letter) {
-		validateAnswer(game, letter);
-		if (game.getSecretWord().indexOf(letter) != -1) {
+	private boolean isSecretFound(String secret, String answer){
+		return secret.equalsIgnoreCase(answer);
+	}
+
+	private void processLetter(GameEntity game, char letter) {
+		validateLetter(game, letter);
+		if (containsLetter(game.getSecretWord(), letter)) {
 			game.setCurrentWord(StringUtils.replaceLetter(game.getSecretWord(), game.getCurrentWord(), letter));
 		} else {
 			game.decrementRemainingAttempt();
 		}
 	}
 
-	private void validateAnswer(GameEntity game, char letter) {
+	private void validateLetter(GameEntity game, char letter) {
 		int occurrences = Collections.frequency(game.getAnswers(), letter);
 		if (occurrences == 1) {
 			throw new AlreadyAnsweredException("Already answered " + letter);
@@ -55,6 +59,10 @@ public class GameService {
 			game.decrementRemainingAttempt();
 			throw new AlreadyAnsweredException("Already answered " + letter + ". Your number of attempt has been decreased by 1.");
 		}
+	}
+
+	private boolean containsLetter(String word, char letter){
+		return word.indexOf(letter) != -1;
 	}
 
 

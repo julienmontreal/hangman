@@ -22,7 +22,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
-@RequestMapping("/game2")
+@RequestMapping("/game")
 public class GameController {
 
     @Autowired
