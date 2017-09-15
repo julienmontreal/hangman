@@ -1,11 +1,11 @@
 package ca.qc.jmercier.hangman.controller;
 
-import ca.qc.jmercier.hangman.util.StringUtils;
-import ca.qc.jmercier.hangman.entities.Status;
 import ca.qc.jmercier.hangman.entities.GameEntity;
 import ca.qc.jmercier.hangman.entities.GameRepository;
+import ca.qc.jmercier.hangman.entities.Status;
 import ca.qc.jmercier.hangman.exception.EndedGameException;
 import ca.qc.jmercier.hangman.service.GameService;
+import ca.qc.jmercier.hangman.util.StringUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,8 +39,8 @@ public class GameController {
 
     @GetMapping
     public ResponseEntity<GameEntity> start(){
-        String secretWord = wordList.get((int)(Math.random()*wordList.size()));
-        GameEntity gameEntity = new GameEntity(Status.STARTED, secretWord, StringUtils.getUnderscoreString(secretWord), nbInitialAttempt);
+        String secretWord = wordList.get((int)(Math.random()*wordList.size()));//FIXME java 8 new Random().nextInt()
+        GameEntity gameEntity = new GameEntity(Status.STARTED, secretWord.trim().toLowerCase(), StringUtils.getUnderscoreString(secretWord), nbInitialAttempt);
         gameRepository.save(gameEntity);
         return new ResponseEntity<>(gameEntity, HttpStatus.CREATED);
     }

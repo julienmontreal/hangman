@@ -1,10 +1,10 @@
 package ca.qc.jmercier.hangman.service;
 
-import ca.qc.jmercier.hangman.util.StringUtils;
-import ca.qc.jmercier.hangman.entities.Status;
 import ca.qc.jmercier.hangman.entities.GameEntity;
 import ca.qc.jmercier.hangman.entities.GameRepository;
+import ca.qc.jmercier.hangman.entities.Status;
 import ca.qc.jmercier.hangman.exception.AlreadyAnsweredException;
+import ca.qc.jmercier.hangman.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +17,11 @@ public class GameService {
 	private GameRepository gameRepository;
 
 	public void processAnswer(GameEntity game, String answer) {
+		answer = answer.trim().toLowerCase();
 		game.getAnswers().add(answer);
 
 		try {
-			if (isSecretFound(game.getSecretWord(), answer)) {
+			if (game.getSecretWord().equalsIgnoreCase(answer)) {
 				game.setStatus(Status.WON);
 				game.setCurrentWord(answer);
 			} else if (isLetter(answer)) {
@@ -37,14 +38,14 @@ public class GameService {
 		return answer.length() == 1;
 	}
 
-	private boolean isSecretFound(String secret, String answer){
-		return secret.equalsIgnoreCase(answer);
-	}
-
 	private void processLetter(GameEntity game, char letter) {
 		validateLetter(game, letter);
 		if (containsLetter(game.getSecretWord(), letter)) {
-			game.setCurrentWord(StringUtils.replaceLetter(game.getSecretWord(), game.getCurrentWord(), letter));
+			String newCurrentWord = StringUtils.replaceLetter(game.getSecretWord(), game.getCurrentWord(), letter);
+			game.setCurrentWord(newCurrentWord);
+			if(newCurrentWord.equalsIgnoreCase(game.getSecretWord())){
+				game.setStatus(Status.WON);
+			}
 		} else {
 			game.decrementRemainingAttempt();
 		}

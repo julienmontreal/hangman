@@ -2,6 +2,7 @@ package ca.qc.jmercier.hangman.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -46,5 +47,4 @@ public class GameEntity implements Serializable {
             status = Status.LOST;
         }
     }
-
 }
