@@ -17,7 +17,7 @@ public class GameService {
 	@Autowired
 	private GameRepository gameRepository;
 
-	public void processAnswer(GameEntity game, String answer) {
+	public GameEntity processAnswer(GameEntity game, String answer) {
 		game.getAnswers().add(answer);
 
 		try {
@@ -34,6 +34,8 @@ public class GameService {
 		} finally {
 			gameRepository.save(game);
 		}
+
+		return game;
 	}
 
 	private String replaceAnswer(String secretWord, String currentWord, String answer){
@@ -45,7 +47,7 @@ public class GameService {
 	}
 
 	private boolean isCorrectAnswer(String secretWord, String answer){
-		return secretWord.equalsIgnoreCase(answer) || (answer.length() == 1 && secretWord.indexOf(answer) != -1);
+		return secretWord.equalsIgnoreCase(answer) || (answer.length() == 1 && secretWord.contains(answer));
 	}
 
 	private void validateAnswer(GameEntity game, String answer) {

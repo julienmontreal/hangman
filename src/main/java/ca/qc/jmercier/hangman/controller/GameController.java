@@ -5,7 +5,7 @@ import ca.qc.jmercier.hangman.entities.GameRepository;
 import ca.qc.jmercier.hangman.entities.Status;
 import ca.qc.jmercier.hangman.exception.EndedGameException;
 import ca.qc.jmercier.hangman.service.GameService;
-import ca.qc.jmercier.hangman.util.StringUtils;
+import ca.qc.jmercier.hangman.util.RandomWordHelper;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
+
+import static ca.qc.jmercier.hangman.util.StringUtils.getUnderscoreString;
 
 @RestController
 @RequestMapping("/game")
@@ -31,24 +32,32 @@ public class GameController {
     @Autowired
     private GameService gameService;
 
+    @Autowired
+    private RandomWordHelper helper;
+
     @Value("${hangman.nbInitialAttempt:10}")
     private Integer nbInitialAttempt;
 
-    @Value("#{'${hangman.wordList}'.split(',')}")
-    private List<String> wordList;
-
     @GetMapping
     public ResponseEntity<GameEntity> start() {
-        //FIXME helper HangmanHelper, HangmanUtils
-        String secretWord = wordList.get((int) (Math.random() * wordList.size()));//FIXME java 8 new Random().nextInt()
+        String secretWord = helper.getRandomWord();
+        String currentWord = getUnderscoreString(secretWord);
         GameEntity gameEntity =
-            new GameEntity(Status.STARTED, secretWord, StringUtils.getUnderscoreString(secretWord), nbInitialAttempt);
-        gameRepository.save(gameEntity);
-        return new ResponseEntity<>(gameEntity, HttpStatus.CREATED);
+            new GameEntity(Status.STARTED, secretWord, currentWord, nbInitialAttempt);
+        return new ResponseEntity<>(gameRepository.save(gameEntity), HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/{gameId}")
+    public ResponseEntity<GameEntity> getGame(@PathVariable("gameId") Integer gameId) {
+        GameEntity game = gameRepository.findOne(gameId);
+        if (game == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(game, HttpStatus.OK);
     }
 
     @PostMapping(value = "/{gameId}")
-    public ResponseEntity<GameEntity> play(@PathVariable Integer gameId,
+    public ResponseEntity<GameEntity> play(@PathVariable("gameId") Integer gameId,
                                            @RequestBody @NotNull @NotEmpty String answer) {
         GameEntity game = gameRepository.findOne(gameId);
         if (game == null) {
@@ -59,8 +68,7 @@ public class GameController {
             throw new EndedGameException("Game is " + game.getStatus().name());
         }
 
-        gameService.processAnswer(game, answer);
-        return new ResponseEntity<>(game, HttpStatus.OK);
+        return new ResponseEntity<>(gameService.processAnswer(game, answer), HttpStatus.OK);
     }
 
 }

@@ -2,6 +2,7 @@ package ca.qc.jmercier.hangman.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class GameEntity implements Serializable {
 
     @Id
@@ -48,10 +50,12 @@ public class GameEntity implements Serializable {
         }
     }
 
+    @JsonIgnore
     public boolean isSecretWordFound(){
         return secretWord.equalsIgnoreCase(currentWord);
     }
 
+    @JsonIgnore
     public boolean isEnded(){
         return !Status.STARTED.equals(status);
     }
