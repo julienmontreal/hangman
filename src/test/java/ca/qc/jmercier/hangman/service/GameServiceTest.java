@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 public class GameServiceTest {
 
-	@Autowired
+	@InjectMocks
 	private GameService gameService;
 
 	@MockBean

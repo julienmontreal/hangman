@@ -7,6 +7,8 @@ import ca.qc.jmercier.hangman.exception.EndedGameException;
 import ca.qc.jmercier.hangman.service.GameService;
 import ca.qc.jmercier.hangman.util.RandomWordHelper;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,8 @@ import static ca.qc.jmercier.hangman.util.StringUtils.getUnderscoreString;
 @RequestMapping("/game")
 public class GameController {
 
+    private static Logger log = LoggerFactory.getLogger(GameController.class);
+
     @Autowired
     private GameRepository gameRepository;
 
@@ -40,6 +44,7 @@ public class GameController {
 
     @GetMapping
     public ResponseEntity<GameEntity> start() {
+        log.info("Starting a new game");
         String secretWord = helper.getRandomWord();
         String currentWord = getUnderscoreString(secretWord);
         GameEntity gameEntity =
@@ -49,16 +54,22 @@ public class GameController {
 
     @GetMapping(value = "/{gameId}")
     public ResponseEntity<GameEntity> getGame(@PathVariable("gameId") Integer gameId) {
+        log.info("Retreiving game:" + gameId);
         GameEntity game = gameRepository.findOne(gameId);
         if (game == null){
+            log.info("Game:" + gameId + " does not exists");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        log.info("Game:" + gameId + " does not exists");
         return new ResponseEntity<>(game, HttpStatus.OK);
     }
 
     @PostMapping(value = "/{gameId}")
     public ResponseEntity<GameEntity> play(@PathVariable("gameId") Integer gameId,
                                            @RequestBody @NotNull @NotEmpty String answer) {
+
+        log.info("Playing game: " + gameId + " with answer: " + answer);
+
         GameEntity game = gameRepository.findOne(gameId);
         if (game == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

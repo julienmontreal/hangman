@@ -52,10 +52,10 @@ public class GameService {
 
 	private void validateAnswer(GameEntity game, String answer) {
 		int occurrences = Collections.frequency(game.getAnswers(), answer);
-		if (occurrences == 1) {
+		if (occurrences == 2) {
 			throw new AlreadyAnsweredException("Already answered " + answer);
 		}
-		if (occurrences > 1) {
+		if (occurrences > 2) {
 			game.decrementRemainingAttempt();
 			throw new AlreadyAnsweredException("Already answered " + answer + ". Your number of attempt has been decreased by 1.");
 		}

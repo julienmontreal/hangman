@@ -27,7 +27,7 @@ public class RandomWordHelperTest {
 	public void getRandomWord(){
 		String randomWord = helper.getRandomWord();
 		assertNotNull(randomWord);
-		assertNotEquals(randomWord, "");
+		assertNotEquals("",randomWord);
 		assertTrue(wordList.stream().anyMatch(s -> s.equals(randomWord)));
 	}
 }

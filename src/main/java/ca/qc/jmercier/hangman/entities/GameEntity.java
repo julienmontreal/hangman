@@ -8,6 +8,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.io.Serializable;
@@ -31,7 +32,7 @@ public class GameEntity implements Serializable {
 
     private String currentWord;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> answers = new ArrayList<>();
 
     private Integer remainingAttempt;
