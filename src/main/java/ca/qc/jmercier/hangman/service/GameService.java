@@ -4,11 +4,12 @@ import ca.qc.jmercier.hangman.entities.GameEntity;
 import ca.qc.jmercier.hangman.entities.GameRepository;
 import ca.qc.jmercier.hangman.entities.Status;
 import ca.qc.jmercier.hangman.exception.AlreadyAnsweredException;
-import ca.qc.jmercier.hangman.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+
+import static ca.qc.jmercier.hangman.util.StringUtils.replaceLetter;
 
 @Service
 public class GameService {
@@ -17,16 +18,17 @@ public class GameService {
 	private GameRepository gameRepository;
 
 	public void processAnswer(GameEntity game, String answer) {
-		answer = answer.trim().toLowerCase();
 		game.getAnswers().add(answer);
 
 		try {
-			if (game.getSecretWord().equalsIgnoreCase(answer)) {
-				game.setStatus(Status.WON);
-				game.setCurrentWord(answer);
-			} else if (isLetter(answer)) {
-				processLetter(game, answer.charAt(0));
-			} else { // non winning word
+			validateAnswer(game, answer);
+
+			if (isCorrectAnswer(game.getSecretWord(),answer)) {
+				game.setCurrentWord(replaceAnswer(game.getSecretWord(), game.getCurrentWord(), answer));
+				if(game.isSecretWordFound()){
+					game.setStatus(Status.WON);
+				}
+			} else { // bad answer
 				game.decrementRemainingAttempt();
 			}
 		} finally {
@@ -34,37 +36,27 @@ public class GameService {
 		}
 	}
 
-	private boolean isLetter(String answer) {
-		return answer.length() == 1;
-	}
-
-	private void processLetter(GameEntity game, char letter) {
-		validateLetter(game, letter);
-		if (containsLetter(game.getSecretWord(), letter)) {
-			String newCurrentWord = StringUtils.replaceLetter(game.getSecretWord(), game.getCurrentWord(), letter);
-			game.setCurrentWord(newCurrentWord);
-			if(newCurrentWord.equalsIgnoreCase(game.getSecretWord())){
-				game.setStatus(Status.WON);
-			}
-		} else {
-			game.decrementRemainingAttempt();
+	private String replaceAnswer(String secretWord, String currentWord, String answer){
+		if (secretWord.equalsIgnoreCase(answer)){
+			return answer;
 		}
+		assert answer.length() == 1;
+		return replaceLetter(secretWord, currentWord, answer.charAt(0));
 	}
 
-	private void validateLetter(GameEntity game, char letter) {
-		int occurrences = Collections.frequency(game.getAnswers(), letter);
+	private boolean isCorrectAnswer(String secretWord, String answer){
+		return secretWord.equalsIgnoreCase(answer) || (answer.length() == 1 && secretWord.indexOf(answer) != -1);
+	}
+
+	private void validateAnswer(GameEntity game, String answer) {
+		int occurrences = Collections.frequency(game.getAnswers(), answer);
 		if (occurrences == 1) {
-			throw new AlreadyAnsweredException("Already answered " + letter);
+			throw new AlreadyAnsweredException("Already answered " + answer);
 		}
 		if (occurrences > 1) {
 			game.decrementRemainingAttempt();
-			throw new AlreadyAnsweredException("Already answered " + letter + ". Your number of attempt has been decreased by 1.");
+			throw new AlreadyAnsweredException("Already answered " + answer + ". Your number of attempt has been decreased by 1.");
 		}
 	}
-
-	private boolean containsLetter(String word, char letter){
-		return word.indexOf(letter) != -1;
-	}
-
 
 }

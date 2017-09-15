@@ -38,21 +38,24 @@ public class GameController {
     private List<String> wordList;
 
     @GetMapping
-    public ResponseEntity<GameEntity> start(){
-        String secretWord = wordList.get((int)(Math.random()*wordList.size()));//FIXME java 8 new Random().nextInt()
-        GameEntity gameEntity = new GameEntity(Status.STARTED, secretWord.trim().toLowerCase(), StringUtils.getUnderscoreString(secretWord), nbInitialAttempt);
+    public ResponseEntity<GameEntity> start() {
+        //FIXME helper HangmanHelper, HangmanUtils
+        String secretWord = wordList.get((int) (Math.random() * wordList.size()));//FIXME java 8 new Random().nextInt()
+        GameEntity gameEntity =
+            new GameEntity(Status.STARTED, secretWord, StringUtils.getUnderscoreString(secretWord), nbInitialAttempt);
         gameRepository.save(gameEntity);
         return new ResponseEntity<>(gameEntity, HttpStatus.CREATED);
     }
 
-    @PostMapping(value = "/{id}")
-    public ResponseEntity<GameEntity> play(@PathVariable Integer id, @RequestBody @NotNull @NotEmpty String answer){
-        GameEntity game = gameRepository.findOne(id);
-        if (game == null){
+    @PostMapping(value = "/{gameId}")
+    public ResponseEntity<GameEntity> play(@PathVariable Integer gameId,
+                                           @RequestBody @NotNull @NotEmpty String answer) {
+        GameEntity game = gameRepository.findOne(gameId);
+        if (game == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        if(isEndedGame(game)){
+        if (game.isEnded()) {
             throw new EndedGameException("Game is " + game.getStatus().name());
         }
 
@@ -60,7 +63,4 @@ public class GameController {
         return new ResponseEntity<>(game, HttpStatus.OK);
     }
 
-    private boolean isEndedGame(GameEntity game){
-        return !Status.STARTED.equals(game.getStatus());
-    };
 }

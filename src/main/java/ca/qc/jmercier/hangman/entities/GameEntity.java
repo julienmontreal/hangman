@@ -47,4 +47,12 @@ public class GameEntity implements Serializable {
             status = Status.LOST;
         }
     }
+
+    public boolean isSecretWordFound(){
+        return secretWord.equalsIgnoreCase(currentWord);
+    }
+
+    public boolean isEnded(){
+        return !Status.STARTED.equals(status);
+    }
 }

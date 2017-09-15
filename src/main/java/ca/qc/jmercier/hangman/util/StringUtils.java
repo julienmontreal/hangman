@@ -1,7 +1,6 @@
 package ca.qc.jmercier.hangman.util;
 
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class StringUtils {
 
