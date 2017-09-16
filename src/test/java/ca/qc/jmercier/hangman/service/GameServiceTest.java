@@ -9,8 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertEquals;
@@ -19,13 +18,12 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
 public class GameServiceTest {
 
 	@InjectMocks
 	private GameService gameService;
 
-	@MockBean
+	@Mock
 	private GameRepository gameRepository;
 
 	@Captor
@@ -83,7 +81,7 @@ public class GameServiceTest {
 		assertNotNull(captorValue);
 		assertTrue(captorValue.getAnswers().contains(answer));
 		assertEquals(Status.STARTED,captorValue.getStatus());
-		assertEquals(remainingAttempt-1,captorValue.getRemainingAttempt().intValue());
-		assertEquals(currentWord, captorValue.getCurrentWord());
+		assertEquals(remainingAttempt,captorValue.getRemainingAttempt());
+		assertEquals("_____t", captorValue.getCurrentWord());
 	}
 }
