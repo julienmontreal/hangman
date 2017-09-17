@@ -1,9 +1,9 @@
 package ca.qc.jmercier.hangman.controller;
 
-import ca.qc.jmercier.hangman.entities.GameEntity;
-import ca.qc.jmercier.hangman.entities.GameRepository;
-import ca.qc.jmercier.hangman.entities.Status;
 import ca.qc.jmercier.hangman.exception.EndedGameException;
+import ca.qc.jmercier.hangman.persistence.GameEntity;
+import ca.qc.jmercier.hangman.persistence.GameRepository;
+import ca.qc.jmercier.hangman.persistence.Status;
 import ca.qc.jmercier.hangman.service.GameService;
 import ca.qc.jmercier.hangman.util.RandomWordHelper;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -30,17 +30,24 @@ public class GameController {
 
     private static Logger log = LoggerFactory.getLogger(GameController.class);
 
-    @Autowired
     private GameRepository gameRepository;
 
-    @Autowired
     private GameService gameService;
 
-    @Autowired
     private RandomWordHelper helper;
 
-    @Value("${hangman.nbInitialAttempt:10}")
-    private Integer nbInitialAttempt;
+    private final Integer nbInitialAttempt;
+
+    @Autowired
+    public GameController(GameRepository gameRepository,
+                          GameService gameService,
+                          RandomWordHelper helper,
+                          @Value("${hangman.nbInitialAttempt:10}") Integer nbInitialAttempt) {
+        this.gameRepository = gameRepository;
+        this.gameService = gameService;
+        this.helper = helper;
+        this.nbInitialAttempt = nbInitialAttempt;
+    }
 
     @GetMapping
     public ResponseEntity<GameEntity> start() {
@@ -52,23 +59,11 @@ public class GameController {
         return new ResponseEntity<>(gameRepository.save(gameEntity), HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/{gameId}")
-    public ResponseEntity<GameEntity> getGame(@PathVariable("gameId") Integer gameId) {
-        log.info("Retreiving game:" + gameId);
-        GameEntity game = gameRepository.findOne(gameId);
-        if (game == null){
-            log.info("Game:" + gameId + " does not exists");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        log.info("Game:" + gameId + " does not exists");
-        return new ResponseEntity<>(game, HttpStatus.OK);
-    }
-
     @PostMapping(value = "/{gameId}")
     public ResponseEntity<GameEntity> play(@PathVariable("gameId") Integer gameId,
                                            @RequestBody @NotNull @NotEmpty String answer) {
 
-        log.info("Playing game: " + gameId + " with answer: " + answer);
+        log.info(String.format("Playing game: [%s] with answer: [%s]" , gameId , answer));
 
         GameEntity game = gameRepository.findOne(gameId);
         if (game == null) {

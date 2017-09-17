@@ -6,11 +6,14 @@ public class StringUtils {
 
 	private static final String UNDERSCORE = "_";
 
-		public static String getUnderscoreString(String word) {
-		StringBuffer stringBuffer = new StringBuffer(word.length());
+	private StringUtils() {
+	}
+
+	public static String getUnderscoreString(String word) {
+		StringBuilder stringBuilder = new StringBuilder(word.length());
 		IntStream.range(0, word.length())
-				.forEach(i -> stringBuffer.append(UNDERSCORE));
-		return stringBuffer.toString();
+				.forEach(i -> stringBuilder.append(UNDERSCORE));
+		return stringBuilder.toString();
 	}
 
 	public static String replaceLetter(String secret, String currentWord, char letter){

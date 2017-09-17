@@ -1,9 +1,9 @@
 package ca.qc.jmercier.hangman.service;
 
-import ca.qc.jmercier.hangman.entities.GameEntity;
-import ca.qc.jmercier.hangman.entities.GameRepository;
-import ca.qc.jmercier.hangman.entities.Status;
 import ca.qc.jmercier.hangman.exception.AlreadyAnsweredException;
+import ca.qc.jmercier.hangman.persistence.GameEntity;
+import ca.qc.jmercier.hangman.persistence.GameRepository;
+import ca.qc.jmercier.hangman.persistence.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +14,11 @@ import static ca.qc.jmercier.hangman.util.StringUtils.replaceLetter;
 @Service
 public class GameService {
 
-	@Autowired
 	private GameRepository gameRepository;
+
+	public GameService(@Autowired GameRepository gameRepository) {
+		this.gameRepository = gameRepository;
+	}
 
 	public GameEntity processAnswer(GameEntity game, String answer) {
 		game.getAnswers().add(answer);

@@ -1,4 +1,4 @@
-package ca.qc.jmercier.hangman.entities;
+package ca.qc.jmercier.hangman.persistence;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;

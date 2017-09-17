@@ -1,7 +1,7 @@
 package ca.qc.jmercier.hangman.fixtures;
 
-import ca.qc.jmercier.hangman.entities.GameEntity;
-import ca.qc.jmercier.hangman.entities.Status;
+import ca.qc.jmercier.hangman.persistence.GameEntity;
+import ca.qc.jmercier.hangman.persistence.Status;
 
 public class GameEntityFixture {
 

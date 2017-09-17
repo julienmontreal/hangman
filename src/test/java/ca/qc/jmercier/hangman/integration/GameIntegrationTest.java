@@ -1,9 +1,9 @@
 package ca.qc.jmercier.hangman.integration;
 
-import ca.qc.jmercier.hangman.entities.GameEntity;
-import ca.qc.jmercier.hangman.entities.GameRepository;
-import ca.qc.jmercier.hangman.entities.Status;
 import ca.qc.jmercier.hangman.fixtures.GameEntityFixture;
+import ca.qc.jmercier.hangman.persistence.GameEntity;
+import ca.qc.jmercier.hangman.persistence.GameRepository;
+import ca.qc.jmercier.hangman.persistence.Status;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +19,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -53,28 +52,6 @@ public class GameIntegrationTest {
 		assertEquals(Collections.EMPTY_LIST, gameEntity.getAnswers());
 		assertEquals(Status.STARTED, gameEntity.getStatus());
 		assertEquals(new Integer(10), gameEntity.getRemainingAttempt());
-	}
-
-	@Test
-	public void whenGameIdExist_thenOk() {
-		ResponseEntity<GameEntity> responseEntity =
-				restTemplate.getForEntity("/game/1", GameEntity.class);
-		GameEntity gameEntity = responseEntity.getBody();
-		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-		assertNotNull(gameEntity.getId());
-		assertNotNull(gameEntity.getCurrentWord());
-		assertNull(gameEntity.getSecretWord());
-		assertThat(gameEntity.getAnswers()).isEqualTo(Collections.EMPTY_LIST);
-		assertEquals(Status.STARTED, gameEntity.getStatus());
-		assertEquals(new Integer(10), gameEntity.getRemainingAttempt());
-	}
-
-	@Test
-	public void whenGameIdDoesNotExist_thenReturns404() {
-		ResponseEntity<GameEntity> responseEntity =
-				restTemplate.getForEntity("/game/100", GameEntity.class);
-		GameEntity gameEntity = responseEntity.getBody();
-		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
 	}
 
 	@Test
