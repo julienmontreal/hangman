@@ -1,6 +1,6 @@
 # hangman
 
-GET /game/start
+GET /game
 
 POST /game/{gameId}
 {answer}

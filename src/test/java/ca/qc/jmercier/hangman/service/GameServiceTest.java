@@ -1,10 +1,12 @@
 package ca.qc.jmercier.hangman.service;
 
 import ca.qc.jmercier.hangman.exception.AlreadyAnsweredException;
+import ca.qc.jmercier.hangman.exception.AlreadyAnsweredTwiceException;
 import ca.qc.jmercier.hangman.fixtures.GameEntityFixture;
 import ca.qc.jmercier.hangman.persistence.GameEntity;
 import ca.qc.jmercier.hangman.persistence.GameRepository;
 import ca.qc.jmercier.hangman.persistence.Status;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -19,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class GameServiceTest {
@@ -32,95 +35,88 @@ public class GameServiceTest {
 	@Captor
 	private ArgumentCaptor<GameEntity> gameEntityArgumentCaptor;
 
+	private GameEntity game1;
+
+	@Before
+	public void setUp(){
+		game1 = GameEntityFixture.get(Status.STARTED, "secret", "______", 10);
+		when(gameRepository.findOne(1)).thenReturn(game1);
+	}
+
 	@Test
 	public void whenAnwerIsSecretWord_thenStatusIsWon(){
-		String secretWord ="secret";
-		Integer remainingAttempt = 10;
-		GameEntity game = GameEntityFixture.get(Status.STARTED, secretWord, "______", remainingAttempt);
+		Integer gameId = 1;
 		String answer = "secret";
 
-		gameService.processAnswer(game, answer);
+		gameService.play(gameId, answer);
 
 		verify(gameRepository).save(gameEntityArgumentCaptor.capture());
-		GameEntity captorValue = gameEntityArgumentCaptor.getValue();
-		assertNotNull(captorValue);
-		assertTrue(captorValue.getAnswers().contains(answer));
-		assertEquals(Status.WON,captorValue.getStatus());
-		assertEquals(game.getRemainingAttempt(),captorValue.getRemainingAttempt());
-		assertEquals(secretWord, captorValue.getCurrentWord());
+
+		GameEntity game = gameEntityArgumentCaptor.getValue();
+		assertNotNull(game);
+		assertTrue(game.getAnswers().contains(answer));
+		assertEquals(Status.WON,game.getStatus());
+		assertEquals(game1.getRemainingAttempt(),game.getRemainingAttempt());
+		assertEquals(game1.getSecretWord(), game.getCurrentWord());
 	}
 
 	@Test
 	public void whenAnwerIsWrongWord_thenRemaingAttemptDecreaseByOne(){
-		String secretWord = "secret";
-		Integer remainingAttempt = 10;
-		String currentWord = "______";
-		GameEntity game = GameEntityFixture.get(Status.STARTED, secretWord, currentWord, remainingAttempt);
+		Integer gameId = 1;
 		String answer = "badAnswer";
 
-		gameService.processAnswer(game, answer);
+		gameService.play(gameId, answer);
 
 		verify(gameRepository).save(gameEntityArgumentCaptor.capture());
 		GameEntity captorValue = gameEntityArgumentCaptor.getValue();
 		assertNotNull(captorValue);
 		assertTrue(captorValue.getAnswers().contains(answer));
 		assertEquals(Status.STARTED,captorValue.getStatus());
-		assertEquals(remainingAttempt-1,captorValue.getRemainingAttempt().intValue());
-		assertEquals(currentWord, captorValue.getCurrentWord());
+		assertEquals(game1.getRemainingAttempt(),captorValue.getRemainingAttempt());
+		assertEquals(game1.getCurrentWord(), captorValue.getCurrentWord());
 	}
 
 	@Test
 	public void whenAnwerIsCorrectLetter_thenCurrentWordIsOk(){
-		String secretWord = "secret";
-		Integer remainingAttempt = 10;
-		String currentWord = "______";
-		GameEntity game = GameEntityFixture.get(Status.STARTED, secretWord, currentWord, remainingAttempt);
+		Integer gameId = 1;
 		String answer = "t";
 
-		gameService.processAnswer(game, answer);
+		gameService.play(gameId, answer);
 
 		verify(gameRepository).save(gameEntityArgumentCaptor.capture());
 		GameEntity captorValue = gameEntityArgumentCaptor.getValue();
 		assertNotNull(captorValue);
 		assertTrue(captorValue.getAnswers().contains(answer));
 		assertEquals(Status.STARTED,captorValue.getStatus());
-		assertEquals(remainingAttempt,captorValue.getRemainingAttempt());
+		assertEquals(game1.getRemainingAttempt(),captorValue.getRemainingAttempt());
 		assertEquals("_____t", captorValue.getCurrentWord());
 	}
 
 	@Test(expected = AlreadyAnsweredException.class)
 	public void whenAnwerIsAlreadyAnswered_thenExceptionRaised(){
-		String secretWord = "secret";
-		Integer remainingAttempt = 10;
-		String currentWord = "______";
-		GameEntity game = GameEntityFixture.get(Status.STARTED, secretWord, currentWord, remainingAttempt);
+		Integer gameId = 1;
 		String answer = "t";
-		game.getAnswers().add(answer);
+		game1.getAnswers().add(answer);
 
-		gameService.processAnswer(game, answer);
+		gameService.play(gameId, answer);
 	}
 
-	@Test(expected = AlreadyAnsweredException.class)
+	@Test(expected = AlreadyAnsweredTwiceException.class)
 	public void whenAnwerIsAlreadyAnsweredTwice_thenExceptionRaised(){
-		String secretWord = "secret";
-		Integer remainingAttempt = 10;
-		String currentWord = "______";
-		GameEntity game = GameEntityFixture.get(Status.STARTED, secretWord, currentWord, remainingAttempt);
+		Integer gameId = 1;
 		String answer = "t";
-		game.getAnswers().addAll(Arrays.asList(answer, answer));
+		game1.getAnswers().addAll(Arrays.asList(answer, answer));
 
-		gameService.processAnswer(game, answer);
+		gameService.play(gameId, answer);
 	}
 
 	@Test
 	public void whenRemainingAttemptIsOneAndBadAnswer_thenGameStatusLost(){
-		String secretWord = "secret";
-		Integer remainingAttempt = 1;
-		String currentWord = "______";
-		GameEntity game = GameEntityFixture.get(Status.STARTED, secretWord, currentWord, remainingAttempt);
+		Integer gameId = 1;
 		String answer = "x";
+		game1.setRemainingAttempt(1);
 
-		gameService.processAnswer(game, answer);
+		gameService.play(gameId, answer);
 
 		verify(gameRepository).save(gameEntityArgumentCaptor.capture());
 

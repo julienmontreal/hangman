@@ -43,21 +43,4 @@ public class GameEntity implements Serializable {
         this.currentWord = currentWord;
         this.remainingAttempt = remainingAttempt;
     }
-
-    public void decrementRemainingAttempt(){
-        remainingAttempt = remainingAttempt - 1;
-        if (remainingAttempt == 0){
-            status = Status.LOST;
-        }
-    }
-
-    @JsonIgnore
-    public boolean isSecretWordFound(){
-        return secretWord.equalsIgnoreCase(currentWord);
-    }
-
-    @JsonIgnore
-    public boolean isEnded(){
-        return !Status.STARTED.equals(status);
-    }
 }
